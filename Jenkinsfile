@@ -25,6 +25,7 @@ pipeline {
                 echo 'Test Stage'
                 sh ''' 
                  ls -la
+                 find . -name "index.html"
                 '''
             }
         }
