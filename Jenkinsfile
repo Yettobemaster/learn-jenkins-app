@@ -26,6 +26,8 @@ pipeline {
                 sh ''' 
                  ls -la
                  find . -name "index.html"
+                 test -f build/index.html
+                 npm test
                 '''
             }
         }
