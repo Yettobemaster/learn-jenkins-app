@@ -26,7 +26,22 @@ pipeline {
                 '''
             }
         }
-
+        stage('Manisha') {
+            agent {
+                docker {
+                    image 'openjdk:17-jdk-slim'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    ls -la
+                    echo "Manisha Is Best. I love Her."
+                    java --version
+                    ls -la
+                '''
+            }
+        }
         stage('Tests') {
             parallel {
                 stage('Unit tests') {
