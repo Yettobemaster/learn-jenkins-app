@@ -124,6 +124,12 @@ pipeline {
                 '''
             }
         }
+        stage('Approval') {
+            steps {
+                input message: 'Do you wish to deploy to Production?', ok: 'Yes, I am Sure!'
+            }
+        }
+
 
         stage('Prod E2E') {
             agent {
