@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NETLIFY_SITE_ID = 'dd38e890-9c97-4689-b2b1-6db673674fe1'
-        NETLIFY_AUTH_TOKEN = credentials('nfp_CR2QcJhctTNGDtUEBQ7PcwZjaeE1v8SF6fab')
+        NETLIFY_AUTH_TOKEN = credentials('netlify-token')
     }
 
     stages {
@@ -26,7 +26,22 @@ pipeline {
                 '''
             }
         }
-
+        stage('Manisha') {
+            agent {
+                docker {
+                    image 'openjdk:17-jdk-slim'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    ls -la
+                    echo "Manisha Is Best. I love Her."
+                    java --version
+                    ls -la
+                '''
+            }
+        }
         stage('Tests') {
             parallel {
                 stage('Unit tests') {
@@ -75,8 +90,7 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy staging') {
+        stage('Deploy Staging') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -85,25 +99,15 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli node-jq
+                    npm install netlify-cli
                     node_modules/.bin/netlify --version
                     echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
-                    node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json
+                    node_modules/.bin/netlify deploy --dir=build 
                 '''
             }
         }
-
-        stage('Approval') {
-            steps {
-                timeout(time: 15, unit: 'MINUTES') {
-                    input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure!'
-                }
-            }
-        }
-
-        stage('Deploy prod') {
+        stage('Deploy Prod') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -120,6 +124,14 @@ pipeline {
                 '''
             }
         }
+        stage('Approval') {
+            steps {
+                timeout(time: 15, unit: 'HOURS') {
+                    input message: 'Do you wish to deploy to Production?', ok: 'Yes, I am Sure!'
+                    }
+            }
+        }
+
 
         stage('Prod E2E') {
             agent {
@@ -130,7 +142,7 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = 'https://peaceful-daffodil-303af5.netlify.app'
+                CI_ENVIRONMENT_URL = 'https://kaleidoscopic-paletas-4fae81.netlify.app/'
             }
 
             steps {
